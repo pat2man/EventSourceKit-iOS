@@ -1,5 +1,5 @@
 //
-//  RestKitMessageParser.swift
+//  JSONMessageParser.swift
 //  EventSourceKit
 //
 //  Created by Patrick Tescher on 8/19/15.

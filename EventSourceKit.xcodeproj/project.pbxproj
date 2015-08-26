@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		95CDE20CC6BC3B9BF7846AE7 /* Pods.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 82BC5FEDF5344D35623BC09B /* Pods.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
+		A6DB35C55881751A0D6BF842 /* Pods_EventSourceKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5D9C839420EEB9786851FC77 /* Pods_EventSourceKit.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		CE3316D31B8665BF00CB4EB6 /* Pods.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CE3316D21B8665BF00CB4EB6 /* Pods.framework */; };
 		CE3316D61B866CC100CB4EB6 /* Model.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = CE3316D41B866CC100CB4EB6 /* Model.xcdatamodeld */; };
 		CE78953E1B85371100AE9BDD /* JSONMessageParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE78953D1B85371100AE9BDD /* JSONMessageParser.swift */; };
@@ -28,7 +29,9 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		0265918A47438C4E4EAA844D /* Pods-EventSourceKit.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-EventSourceKit.release.xcconfig"; path = "Pods/Target Support Files/Pods-EventSourceKit/Pods-EventSourceKit.release.xcconfig"; sourceTree = "<group>"; };
 		2FDF257FF1B7DD758B5F0C34 /* Pods.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.debug.xcconfig; path = "Pods/Target Support Files/Pods/Pods.debug.xcconfig"; sourceTree = "<group>"; };
+		3DABD5394BDFB2B99D579806 /* Pods-EventSourceKit.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-EventSourceKit.debug.xcconfig"; path = "Pods/Target Support Files/Pods-EventSourceKit/Pods-EventSourceKit.debug.xcconfig"; sourceTree = "<group>"; };
 		5D9C839420EEB9786851FC77 /* Pods_EventSourceKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_EventSourceKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		82BC5FEDF5344D35623BC09B /* Pods.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		CE3316D21B8665BF00CB4EB6 /* Pods.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Pods.framework; path = "Pods/../build/Debug-iphoneos/Pods.framework"; sourceTree = "<group>"; };
@@ -50,6 +53,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				95CDE20CC6BC3B9BF7846AE7 /* Pods.framework in Frameworks */,
+				A6DB35C55881751A0D6BF842 /* Pods_EventSourceKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -70,6 +74,8 @@
 			children = (
 				2FDF257FF1B7DD758B5F0C34 /* Pods.debug.xcconfig */,
 				D7B8FC86D4EDCE73B94EA0B8 /* Pods.release.xcconfig */,
+				3DABD5394BDFB2B99D579806 /* Pods-EventSourceKit.debug.xcconfig */,
+				0265918A47438C4E4EAA844D /* Pods-EventSourceKit.release.xcconfig */,
 			);
 			name = Pods;
 			sourceTree = "<group>";
@@ -258,7 +264,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods/Pods-resources.sh\"\n";
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-EventSourceKit/Pods-EventSourceKit-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
@@ -386,6 +392,7 @@
 		};
 		CE9449231B82507B006441A0 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 3DABD5394BDFB2B99D579806 /* Pods-EventSourceKit.debug.xcconfig */;
 			buildSettings = {
 				CLANG_ENABLE_MODULES = YES;
 				DEFINES_MODULE = YES;
@@ -404,6 +411,7 @@
 		};
 		CE9449241B82507B006441A0 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 0265918A47438C4E4EAA844D /* Pods-EventSourceKit.release.xcconfig */;
 			buildSettings = {
 				CLANG_ENABLE_MODULES = YES;
 				DEFINES_MODULE = YES;

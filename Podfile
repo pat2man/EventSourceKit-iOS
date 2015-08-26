@@ -4,10 +4,8 @@
 inhibit_all_warnings!
 use_frameworks!
 
-pod 'RestKit', :git => 'https://github.com/RestKit/RestKit.git'
-pod 'PromiseKit', :git => 'https://github.com/mxcl/PromiseKit.git', :branch => 'swift-2.0-beta5'
-
 target 'EventSourceKit' do
+    pod 'PromiseKit', :git => 'https://github.com/mxcl/PromiseKit.git', :branch => 'swift-2.0-beta5'
 end
 
 target 'EventSourceKitTests' do
