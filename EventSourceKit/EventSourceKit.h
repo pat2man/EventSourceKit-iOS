@@ -6,7 +6,8 @@
 //  Copyright © 2015 Ticketfly. All rights reserved.
 //
 
-#import <UIKit/UIKit.h>
+@import Foundation;
+@import CoreData;
 
 //! Project version number for EventSourceKit.
 FOUNDATION_EXPORT double EventSourceKitVersionNumber;

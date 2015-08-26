@@ -16,7 +16,7 @@ Pod::Spec.new do |s|
   #
 
   s.name         = "EventSourceKit"
-  s.version      = "0.0.2"
+  s.version      = "0.0.3"
   s.summary      = ""
 
   s.description  = <<-DESC
@@ -116,7 +116,7 @@ Pod::Spec.new do |s|
   #  the lib prefix of their name.
   #
 
-  # s.framework  = "SomeFramework"
+  s.framework  = 'CoreData'
   # s.frameworks = "SomeFramework", "AnotherFramework"
 
   # s.library   = "iconv"
