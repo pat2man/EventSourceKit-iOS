@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>classNames</key>
+	<dict>
+		<key>EventSourceKitTests</key>
+		<dict>
+			<key>testMultipleMessages()</key>
+			<dict>
+				<key>com.apple.XCTPerformanceMetric_WallClockTime</key>
+				<dict>
+					<key>baselineAverage</key>
+					<real>2</real>
+					<key>baselineIntegrationDisplayName</key>
+					<string>Jan 29, 2016, 12:59:05 PM</string>
+				</dict>
+			</dict>
+			<key>testSingleMessage()</key>
+			<dict>
+				<key>com.apple.XCTPerformanceMetric_WallClockTime</key>
+				<dict>
+					<key>baselineAverage</key>
+					<real>0.0013194</real>
+					<key>baselineIntegrationDisplayName</key>
+					<string>Jan 29, 2016, 12:57:20 PM</string>
+				</dict>
+			</dict>
+		</dict>
+	</dict>
+</dict>
+</plist>

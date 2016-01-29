@@ -5,7 +5,7 @@ inhibit_all_warnings!
 use_frameworks!
 
 target 'EventSourceKit' do
-    pod 'PromiseKit', :git => 'https://github.com/mxcl/PromiseKit.git', :branch => 'swift-2.0-beta5'
+    pod 'PromiseKit', '>= 3.0.0'
 end
 
 target 'EventSourceKitTests' do

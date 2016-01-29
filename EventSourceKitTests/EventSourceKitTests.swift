@@ -33,11 +33,13 @@ class TestCounter: EventSnapshotter {
     
     func takeSnapshot(event: Event) -> Promise<Snapshot> {
         return Promise { (fulfill, reject) in
-            let fetchRequest = NSFetchRequest(entityName: "Event")
-            fetchRequest.predicate = NSPredicate(format: "aggregationKey == %@", event.aggregationKey)
-            messageContext.performBlock {
+            let context = self.messageContext
+            context.performBlock {
+                let fetchRequest = NSFetchRequest(entityName: "Event")
+                fetchRequest.predicate = NSPredicate(format: "aggregationKey == %@", event.aggregationKey)
                 do {
-                    if let messageObjects = try self.messageContext.executeFetchRequest(fetchRequest) as? [NSManagedObject] {
+                    let fetchedObjects = try context.executeFetchRequest(fetchRequest)
+                    if let messageObjects = fetchedObjects as? [NSManagedObject] {
                         let count = messageObjects.count
                         fulfill(TestCount(count: count))
                     } else {
@@ -52,11 +54,14 @@ class TestCounter: EventSnapshotter {
     
     func persist(snapshot: Snapshot) -> Promise<Snapshot> {
         return Promise {fulfill, reject in
-            do {
-                try context.save()
-                fulfill(snapshot)
-            } catch {
-                reject(error)
+            let context = self.context
+            context.performBlock {
+                do {
+                    try context.save()
+                    fulfill(snapshot)
+                } catch {
+                    reject(error)
+                }
             }
         }
     }
@@ -65,10 +70,11 @@ class TestCounter: EventSnapshotter {
 struct TestMessage: Message {
     let messageID: String
     let topic = "/registers/1"
+    let aggregationKey: String
     var body: NSData {
         get {
             do {
-                let testData = ["test": "true", "aggregationKey": "test", "messageID": messageID]
+                let testData = ["test": "true", "aggregationKey": aggregationKey, "messageID": messageID]
                 return try NSJSONSerialization.dataWithJSONObject(NSDictionary(dictionary: testData), options: NSJSONWritingOptions.PrettyPrinted)
             } catch {
                 return NSData()
@@ -77,59 +83,15 @@ struct TestMessage: Message {
     }
 }
 
-struct CoreDataEventStore: EventStore {
-    let context: NSManagedObjectContext
-    
-    func findExistingEvent(eventID: String) throws -> NSManagedObject? {
-        let fetchRequest = NSFetchRequest(entityName: "Event")
-        fetchRequest.predicate = NSPredicate(format: "eventID == %@", eventID)
-        let results = try context.executeFetchRequest(fetchRequest)
-        return results.first as? NSManagedObject
-    }
-    
-    func insertEvent(event: Event) -> Promise<Event> {
-        return Promise {fulfill, reject in
-            context.performBlock {
-                do {
-                    let existingObject = try self.findExistingEvent(event.eventID)
-                    if let existingObject = existingObject {
-                        fulfill(existingObject)
-                    } else {
-                        print("No existing message matches \(event.eventID)")
-                        let newObject = NSEntityDescription.insertNewObjectForEntityForName("Event", inManagedObjectContext: self.context)
-                        let dictionaryValues = ["eventID": event.eventID, "aggregationKey": event.aggregationKey, "body": event.dictionary] as [String: AnyObject]
-                        newObject.setValuesForKeysWithDictionary(dictionaryValues)
-                        try newObject.validateForInsert()
-                        fulfill(newObject)
-                    }
-                } catch {
-                    reject(error)
-                }
-            }
-        }
-    }
-    
-    func finalizeTransaction() -> Promise<[Event]> {
-        return Promise {fulfill, reject in
-            do {
-                let events = Array(context.insertedObjects) as [Event]
-                try context.save()
-                fulfill(events)
-            } catch {
-                reject(error)
-            }
-        }
-    }
-}
-
 class EventSourceKitTests: XCTestCase {
     
     var manager: MessageManager?
+    var managedObjectContext: NSManagedObjectContext?
     
     override func setUp() {
         super.setUp()
         
-        let context = NSManagedObjectContext(concurrencyType: NSManagedObjectContextConcurrencyType.PrivateQueueConcurrencyType)
+        let context = NSManagedObjectContext(concurrencyType: .PrivateQueueConcurrencyType)
         
         if let model = NSManagedObjectModel.mergedModelFromBundles(NSBundle.allBundles()) {
             let persistentStoreCoordinator = NSPersistentStoreCoordinator(managedObjectModel: model)
@@ -155,6 +117,7 @@ class EventSourceKitTests: XCTestCase {
         }
         
         manager = newManager
+        managedObjectContext = context
     }
     
     override func tearDown() {
@@ -163,12 +126,12 @@ class EventSourceKitTests: XCTestCase {
     }
     
     func testSingleMessage() {
-        let message = TestMessage(messageID: NSUUID().UUIDString)
-        print("Generated message with id \(message.messageID)")
 
         self.measureBlock {
 
             let expectation = self.expectationWithDescription("Message shoudld be parsed")
+            
+            let message = TestMessage(messageID: NSUUID().UUIDString, aggregationKey: NSUUID().UUIDString)
             
             if let manager = self.manager {
                 firstly {
@@ -187,39 +150,47 @@ class EventSourceKitTests: XCTestCase {
             }
             
             self.waitForExpectationsWithTimeout(10.0) { (error) in
-                print("Timed out waiting for message to parse")
+                XCTAssertNil(error, "Timed out waiting for message to parse: \(error)")
             }
         }
     }
     
     func testMultipleMessages() {
-        let messageOne = TestMessage(messageID: NSUUID().UUIDString)
-        let messageTwo = TestMessage(messageID: NSUUID().UUIDString)
-
+        
         self.measureBlock {
 
             let expectation = self.expectationWithDescription("Message shoudld be parsed")
             
             if let manager = self.manager {
-                firstly {
-                    manager.handleMessage(messageOne)
-                }.then { (aggregations) in
-                    manager.handleMessage(messageTwo)
-                }.then { (snapshots) -> Void in
-                    expectation.fulfill()
-                    XCTAssert(snapshots.count == 1, "Should have one snapshot, not \(snapshots.count)")
-                    if let testCount = snapshots.first as? TestCount {
-                        XCTAssert(testCount.count == 2, "We should have two test events, not \(testCount.count)")
+    
+                let messageCount = 150
+                
+                let aggregationKey = NSUUID().UUIDString
+                
+                let messagePromises = (1...messageCount).map {_ -> Promise<[Snapshot]> in
+                    let message = TestMessage(messageID: NSUUID().UUIDString, aggregationKey: aggregationKey)
+                    return manager.handleMessage(message)
+                }
+                
+                when(messagePromises).then { (promiseResults) -> Void in
+                    if let snapshots = promiseResults.last {
+                        expectation.fulfill()
+                        XCTAssert(snapshots.count == 1, "Should have one snapshot, not \(snapshots.count)")
+                        if let testCount = snapshots.last as? TestCount {
+                            XCTAssertEqual(testCount.count, messageCount, "We should have \(messageCount) test events, not \(testCount.count)")
+                        } else {
+                            XCTFail("Snapshot was not a test count")
+                        }
                     } else {
-                        XCTFail("Snapshot was not a test count")
+                        XCTFail("No snapshots")
                     }
                 }.recover { error in
                     XCTFail("\(error)")
                 }
             }
             
-            self.waitForExpectationsWithTimeout(10.0) { (error) in
-                print("Timed out waiting for message to parse")
+            self.waitForExpectationsWithTimeout(60.0) { (error) in
+                XCTAssertNil(error, "Timed out waiting for message to parse: \(error)")
             }
         }
     }

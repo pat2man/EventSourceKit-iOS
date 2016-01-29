@@ -9,19 +9,7 @@
 import Foundation
 import PromiseKit
 
-//MARK: Errors
-
-let noEntityError = NSError(
-    domain: "com.ticketfly.eventsourcekit",
-    code: 404,
-    userInfo: [NSLocalizedDescriptionKey:"No message entity"]
-)
-
-let noMatchingMessageParsersError = NSError(
-    domain: "com.ticketfly.eventsourcekit",
-    code: 404,
-    userInfo: [NSLocalizedDescriptionKey:"No matching message parsers found"]
-)
+//MARK: Protocols
 
 public protocol EventSnapshotter {
     func appliesToEvent(event: Event) -> Bool
@@ -51,75 +39,13 @@ public protocol Event {
     var dictionary: [String: AnyObject] { get }
 }
 
-extension NSDictionary: Event {
-    public var eventID: String {
-        get {
-            if let eventID = self["eventID"] as? String {
-                return eventID
-            } else {
-                return ""
-            }
-        }
-    }
-    
-    public var aggregationKey: String {
-        get {
-            if let aggregationKey = self["aggregationKey"] as? String {
-                return aggregationKey
-            } else {
-                return ""
-            }
-        }
-    }
-    
-    public var dictionary: [String: AnyObject] {
-        get {
-            return self as! [String: AnyObject]
-        }
-    }
-}
-
-extension NSManagedObject: Event {
-    public var eventID: String {
-        get {
-            if let eventID = self.primitiveValueForKey("eventID") as? String {
-                return eventID
-            } else {
-                let primitiveEventID = self.primitiveValueForKey("eventID")
-                print("messageID is not a string, it is \(primitiveEventID)")
-                return ""
-            }
-        }
-    }
-    
-    public var aggregationKey: String {
-        get {
-            if let aggregationKey = self.primitiveValueForKey("aggregationKey") as? String {
-                return aggregationKey
-            } else {
-                return ""
-            }
-        }
-    }
-    
-    public var dictionary: [String: AnyObject] {
-        get {
-            return [
-                "messageID": self.valueForKey("messageID")!,
-                "aggregationKey": self.valueForKey("aggregationKey")!
-            ]
-        }
-    }
-
-}
-
 public protocol Snapshot {
     
 }
 
 public class MessageManager {
     
-    let messageStore: EventStore
+    public let messageStore: EventStore
     
     init(messageStore: EventStore) {
         self.messageStore = messageStore
@@ -157,12 +83,12 @@ public class MessageManager {
         }
     }
 
-    func runSnapshots(message: Event) -> Promise<[Snapshot]> {
+    func runSnapshots(event: Event) -> Promise<[Snapshot]> {
         return when( messageSnapshotters.filter{
-            $0.appliesToEvent(message)
+            $0.appliesToEvent(event)
         }.map { snapshotter in
             return firstly {
-                snapshotter.takeSnapshot(message)
+                snapshotter.takeSnapshot(event)
             }.then { snapshot in
                 return snapshotter.persist(snapshot)
             }
@@ -178,5 +104,89 @@ public class MessageManager {
             }
         }
     }
+}
+
+//MARK: Extensions
+
+extension NSDictionary: Event {
+    public var eventID: String {
+        get {
+            if let eventID = self["eventID"] as? String {
+                return eventID
+            } else {
+                return ""
+            }
+        }
+    }
+    
+    public var aggregationKey: String {
+        get {
+            if let aggregationKey = self["aggregationKey"] as? String {
+                return aggregationKey
+            } else {
+                return ""
+            }
+        }
+    }
+    
+    public var dictionary: [String: AnyObject] {
+        get {
+            return self as! [String: AnyObject]
+        }
+    }
+}
+
+extension NSManagedObject: Event {
+    public var eventID: String {
+        get {
+            if let eventID = self.primitiveValueForKey("eventID") as? String {
+                return eventID
+            } else {
+                return ""
+            }
+        }
+        set {
+            self.setPrimitiveValue(newValue, forKey: "eventID")
+        }
+    }
+    
+    public var aggregationKey: String {
+        get {
+            if let aggregationKey = self.primitiveValueForKey("aggregationKey") as? String {
+                return aggregationKey
+            } else {
+                return ""
+            }
+        }
+        set {
+            self.setPrimitiveValue(newValue, forKey: "aggregationKey")
+        }
+    }
+    
+    public var dictionary: [String: AnyObject] {
+        get {
+            return [
+                "messageID": self.valueForKey("messageID")!,
+                "aggregationKey": self.valueForKey("aggregationKey")!
+            ]
+        }
+        set {
+            self.setPrimitiveValue(newValue, forKey: "dictionary")
+        }
+    }
     
 }
+
+//MARK: Errors
+
+let noEntityError = NSError(
+    domain: "com.ticketfly.eventsourcekit",
+    code: 404,
+    userInfo: [NSLocalizedDescriptionKey:"No message entity"]
+)
+
+let noMatchingMessageParsersError = NSError(
+    domain: "com.ticketfly.eventsourcekit",
+    code: 404,
+    userInfo: [NSLocalizedDescriptionKey:"No matching message parsers found"]
+)

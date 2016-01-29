@@ -1,11 +1,11 @@
 PODS:
-  - OMGHTTPURLRQ (3.0.0):
-    - OMGHTTPURLRQ/RQ (= 3.0.0)
-  - OMGHTTPURLRQ/FormURLEncode (3.0.0)
-  - OMGHTTPURLRQ/RQ (3.0.0):
+  - OMGHTTPURLRQ (3.0.2):
+    - OMGHTTPURLRQ/RQ (= 3.0.2)
+  - OMGHTTPURLRQ/FormURLEncode (3.0.2)
+  - OMGHTTPURLRQ/RQ (3.0.2):
     - OMGHTTPURLRQ/FormURLEncode
     - OMGHTTPURLRQ/UserAgent
-  - OMGHTTPURLRQ/UserAgent (3.0.0)
+  - OMGHTTPURLRQ/UserAgent (3.0.2)
   - PromiseKit (3.0.0):
     - PromiseKit/Foundation (= 3.0.0)
     - PromiseKit/QuartzCore (= 3.0.0)
@@ -20,20 +20,10 @@ PODS:
     - PromiseKit/CorePromise
 
 DEPENDENCIES:
-  - PromiseKit (from `https://github.com/mxcl/PromiseKit.git`, branch `swift-2.0-beta5`)
-
-EXTERNAL SOURCES:
-  PromiseKit:
-    :branch: swift-2.0-beta5
-    :git: https://github.com/mxcl/PromiseKit.git
-
-CHECKOUT OPTIONS:
-  PromiseKit:
-    :commit: d1f27a1ef9f0d395b44c70add2391075f27f6e13
-    :git: https://github.com/mxcl/PromiseKit.git
+  - PromiseKit (>= 3.0.0)
 
 SPEC CHECKSUMS:
-  OMGHTTPURLRQ: 45cd892e5643206a5a359307621df7678625ebec
-  PromiseKit: a657c450a01f60137376a0210eb7b11f1aef8413
+  OMGHTTPURLRQ: 8376dc887d76a5a7e2a67881dc788f917a2f437c
+  PromiseKit: 665540a1eb43156446872dcf49ed7dee6ebbe13b
 
-COCOAPODS: 0.38.2
+COCOAPODS: 0.39.0
